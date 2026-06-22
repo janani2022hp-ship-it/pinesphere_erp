@@ -1,0 +1,7 @@
+-keep class io.flutter.** { *; }
+-keep class io.flutter.plugins.** { *; }
+-keep class com.example.pinesphere_erp.** { *; }
+-dontwarn okhttp3.**
+-dontwarn retrofit2.**
+-dontwarn com.google.android.play.core.**
+-keep class com.google.android.play.core.** { *; }

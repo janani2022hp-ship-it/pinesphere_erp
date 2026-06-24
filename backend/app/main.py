@@ -7,10 +7,8 @@ from fastapi.staticfiles import StaticFiles
 from app.core.database import Base, SessionLocal, engine
 from app.core.seed import seed_demo_data
 
-# ── Shared models ──────────────────────────────────────────────────────────────
 from app.shared.models.user import User
 
-# ── Student models ─────────────────────────────────────────────────────────────
 from app.modules.student.models.student import Student
 from app.modules.student.models.course import Course
 from app.modules.student.models.enrollment import Enrollment
@@ -21,7 +19,6 @@ from app.modules.student.models.student_course import StudentCourse
 from app.modules.student.models.course_video import CourseVideo
 from app.modules.student.models.notification import Notification, NotificationDevice, NotificationPreference
 
-# ── Routers ────────────────────────────────────────────────────────────────────
 from app.modules.auth.routers.auth_router import router as auth_router
 from app.modules.student.routers.dashboard_router import router as dashboard_router
 from app.modules.student.routers.course_router import router as course_router
@@ -33,21 +30,13 @@ from app.modules.student.routers.study_time_router import router as study_time_r
 from app.modules.admin.routers.dashboard_router import router as admin_dashboard_router
 from app.modules.trainer.routers.dashboard_router import router as trainer_dashboard_router
 from app.modules.trainer.routers.assignment_router import router as assignment_router
-from app.modules.trainer.routers.courses import router as trainer_courses_router  # ✅
-from app.modules.trainer.routers.videos import router as trainer_videos_router    # ✅
+from app.modules.trainer.routers.courses import router as trainer_courses_router
+from app.modules.trainer.routers.videos import router as trainer_videos_router
 from app.modules.parent.routers.dashboard_router import router as parent_dashboard_router
 from app.modules.notifications.router import router as notifications_router
 
-# ── DB setup ───────────────────────────────────────────────────────────────────
 Base.metadata.create_all(bind=engine)
 
-db = SessionLocal()
-try:
-    seed_demo_data(db)
-finally:
-    db.close()
-
-# ── App ────────────────────────────────────────────────────────────────────────
 app = FastAPI()
 
 BACKEND_ROOT = Path(__file__).resolve().parents[1]
@@ -62,7 +51,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ── Register routers ───────────────────────────────────────────────────────────
 app.include_router(auth_router)
 app.include_router(dashboard_router)
 app.include_router(course_router)
@@ -79,13 +67,11 @@ app.include_router(trainer_courses_router, prefix="/trainer", tags=["Trainer Cou
 app.include_router(trainer_videos_router, prefix="/trainer", tags=["Trainer Videos"])
 app.include_router(notifications_router)
 
-# ── Static files ───────────────────────────────────────────────────────────────
 app.mount(
     "/uploads",
     StaticFiles(directory=str(UPLOAD_DIR)),
     name="uploads",
 )
-
 
 @app.get("/")
 def root():

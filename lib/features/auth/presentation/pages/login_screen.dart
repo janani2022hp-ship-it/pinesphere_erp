@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import '../../../auth/services/auth_service.dart';
 import '../../../admin/presentation/pages/admin_home_screen.dart';
 import '../../../parent/presentation/pages/parent_screen.dart';
@@ -22,6 +23,48 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _isLoading = false;
   bool _obscurePassword = true;
   String? _errorMessage;
+
+  // ✅ initState INSIDE the class
+  @override
+  void initState() {
+    super.initState();
+    print("🚀 initState called");
+    requestPermission();
+    getFCMToken();
+  }
+
+  // ✅ INSIDE the class
+  Future<void> requestPermission() async {
+    NotificationSettings settings = await FirebaseMessaging.instance.requestPermission(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
+    if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+      print("Permission granted");
+    } else {
+      print("Permission denied");
+    }
+  }
+
+Future<void> getFCMToken() async {
+  try {
+    print("🔄 Getting FCM token...");
+    
+    // wait for permission first
+    await Future.delayed(const Duration(seconds: 2));
+    
+    String? token = await FirebaseMessaging.instance.getToken();
+    
+    if (token != null) {
+      print("✅ FCM Token: $token");
+    } else {
+      print("❌ Token is NULL - check google-services.json");
+    }
+  } catch (e) {
+    print("❌ FCM Error: $e");
+  }
+}
 
   @override
   void dispose() {
@@ -94,7 +137,6 @@ class _LoginScreenState extends State<LoginScreen> {
             children: [
               const SizedBox(height: 48),
 
-              // Logo
               Container(
                 width: 90,
                 height: 90,
@@ -132,7 +174,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
               const SizedBox(height: 48),
 
-              // Username field
               _InputField(
                 controller: _usernameController,
                 hint: 'Username or Email',
@@ -140,7 +181,6 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 14),
 
-              // Password field
               _InputField(
                 controller: _passwordController,
                 hint: 'Password',
@@ -156,7 +196,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
 
-              // Error message
               if (_errorMessage != null) ...[
                 const SizedBox(height: 12),
                 Container(
@@ -178,7 +217,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
               const SizedBox(height: 28),
 
-              // Login button
               SizedBox(
                 width: double.infinity,
                 height: 56,
@@ -221,7 +259,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
               const SizedBox(height: 20),
 
-              // Sign up link
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -238,7 +275,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       MaterialPageRoute(builder: (_) => const SignupScreen()),
                     ),
                     child: Text(
-                      'Sign up',
+                      ' Sign up',
                       style: GoogleFonts.fredoka(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
